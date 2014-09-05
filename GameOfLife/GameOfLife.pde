@@ -13,15 +13,24 @@ class Cell
   public void drawMe()
   {
     if (state)
+    {
       fill(0);
+    }
     else
       fill(255);
+    rect(x,y,x+size,y+size);
+  }
+  
+  public void fillNeighbor()
+  {
+    fill(255,0,0);
     rect(x,y,x+size,y+size);
   }
   
   public void switchState()
   {
     state = nextState;
+    nextState = false;
   }
   
   public boolean getState()
@@ -41,76 +50,163 @@ class Cell
 }
 
 int SIZE = 5;
+int WIDTH = 500;
+int HEIGHT = 500;
+int GENERATIONS = 0;
+boolean play = false;
 Cell[][] cells;
 
 void setup()
 {
-  size(2000,2000);
+  size(WIDTH,HEIGHT + 100);
   background(255);
   noStroke();
-  cells = new Cell[width/SIZE][height/SIZE];
+  cells = new Cell[WIDTH/SIZE][HEIGHT/SIZE];
   
-  //print(height/SIZE + "\n");
-  
-  for (int x = 0; x < (width/SIZE); x++)
+  for (int x = 0; x < (WIDTH/SIZE); x++)
   {
-    for (int y = 0; y < (height/SIZE); y++)
+    for (int y = 0; y < (HEIGHT/SIZE); y++)
     {
-      //print("Creating new cell @ (" + x + ", " + y + ").\n");
       cells[x][y] = new Cell(x,y,SIZE);
-      if (x%2 == 0) cells[x][y].setState(true);
     }
+  }
+}
+
+void mouseDragged()
+{
+  if (mouseY <= (height-(height/10)))
+  {
+    int x = mouseX/SIZE;
+    int y = mouseY/SIZE;
+    if (x >= 0 && x < (WIDTH/SIZE) && y >= 0 && y < (HEIGHT/SIZE))
+    {
+      cells[x][y].setState(true);
+    }
+  }
+}
+
+void mouseClicked()
+{
+  if (mouseY <= (height-(height/10)))
+  {
+    int x = mouseX/SIZE;
+    int y = mouseY/SIZE;
+    if (x >= 0 && x < (WIDTH/SIZE) && y >= 0 && y < (HEIGHT/SIZE))
+    {
+      cells[x][y].setState(!cells[x][y].getState());
+    }
+  }
+  else
+  {
+    play = !play;
   }
 }
 
 void draw()
 {
-  int w = width/SIZE;
-  int h = height/SIZE;
-  rectMode(CORNERS);
+  int w = WIDTH/SIZE;
+  int h = HEIGHT/SIZE;
+  rectMode(CORNER);
   fill(0);
+  rect(0,height-(height/10), width, height/10);
+  rectMode(CORNERS);
+  colorMode(RGB);
+  fill(0);
+  
+  if (play)
+  {
+    for (int x = 0; x < w; x++)
+    {
+      for (int y = 0; y < h; y++)
+      {
+        int neg_x = (x == 0) ? w - 1 : (x - 1);
+        int neg_y = (y == 0) ? h - 1 : (y - 1);
+        int pos_x = (x == (w-1)) ? 0 : (x + 1);
+        int pos_y = (y == (h-1)) ? 0 : (y + 1);
+        
+        int count = 0;
+        
+        if (cells[x][y].getState())
+        {
+          cells[neg_x][neg_y].fillNeighbor();
+          cells[x][neg_y].fillNeighbor();
+          cells[pos_x][neg_y].fillNeighbor();
+          
+          cells[neg_x][y].fillNeighbor();
+          cells[pos_x][y].fillNeighbor();
+          
+          cells[neg_x][pos_y].fillNeighbor();
+          cells[x][pos_y].fillNeighbor();
+          cells[pos_x][pos_y].fillNeighbor();
+        }
+        
+        if (cells[neg_x][neg_y].getState())
+        {
+          count = count + 1;
+        }
+        if (cells[x][neg_y].getState())
+        {
+          count = count + 1;
+        }
+        if (cells[pos_x][neg_y].getState())
+        {
+          count = count + 1;
+        }
+        
+        if (cells[neg_x][y].getState())
+        {
+          count = count + 1;
+        }
+        if (cells[pos_x][y].getState())
+        {
+          count = count + 1;
+        }
+        
+        if (cells[neg_x][pos_y].getState())
+        {
+          count = count + 1;
+        }
+        if (cells[x][pos_y].getState())
+        {
+          count = count + 1;
+        }
+        if (cells[pos_x][pos_y].getState())
+        {
+          count = count + 1;
+        }
+        
+        if (cells[x][y].getState() && count <= 3 && count >= 2)
+        {
+          cells[x][y].setNextState(true);
+        }
+        else if (cells[x][y].getState() && (count > 3 || count < 2))
+        {
+          cells[x][y].setNextState(false);
+        }
+        else if (!cells[x][y].getState() && count == 3)
+        {
+          cells[x][y].setNextState(true);
+        }
+      }
+    }
+    GENERATIONS++;
+  }
+    
+  boolean alive = !play;
   for (int x = 0; x < w; x++)
   {
     for (int y = 0; y < h; y++)
     {
-      cells[x][y].switchState();
+      if (play) cells[x][y].switchState();
+      if (cells[x][y].getState()) alive = true;
       cells[x][y].drawMe();
-      
-      int neg_x = (x == 0) ? w - 1 : x - 1;
-      int neg_y = (y == 0) ? h - 1 : y - 1;
-      int pos_x = (x == (w-1)) ? 0 : x + 1;
-      int pos_y = (y == (h-1)) ? 0 : y + 1;
-      
-      int count = 0;
-      
-      if (cells[neg_x][neg_y].getState()) count++;
-      if (cells[x][neg_y].getState()) count++;
-      if (cells[pos_x][neg_y].getState()) count++;
-      
-      if (cells[neg_x][y].getState()) count++;
-      if (cells[pos_x][y].getState()) count++;
-      
-      if (cells[neg_x][pos_y].getState()) count++;
-      if (cells[x][pos_y].getState()) count++;
-      if (cells[pos_x][pos_y].getState()) count++;
-      
-      if (cells[x][y].getState() && count <= 3 && count >= 2)
-      {
-        cells[x][y].setNextState(true);
-      }
-      else if (cells[x][y].getState() && (count > 3 || count < 2))
-      {
-        cells[x][y].setNextState(false);
-      }
-      else if (!cells[x][y].getState() && count == 3)
-      {
-        cells[x][y].setNextState(true);
-      }
-      else
-      {
-        cells[x][y].setNextState(false);
-      }
     }
+  }
+  fill(255,0,0);
+  text("Gens: " + GENERATIONS, 5, 15);
+  if (!alive)
+  {
+    stop();
   }
   delay(100);
 }
