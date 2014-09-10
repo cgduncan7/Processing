@@ -1,15 +1,16 @@
 class Particle
 {
-  float x, y, z, t;
+  float x, y, z, t, hue;
   int r, age;
   
-  Particle(float x, float y, float z, float t, int r)
+  Particle(float x, float y, float z, float t, int r, float hue)
   {
     this.x = x;
     this.y = y;
     this.z = z;
     this.t = t;
     this.r = r;
+    this.hue = hue;
     age = 0;
   }
   
@@ -35,6 +36,7 @@ class Particle
   void drawMe()
   {
     noStroke();
+    fill(color(hue,hue,hue));
     pushMatrix();
     translate(x,y,z+age);
     sphere(r);
@@ -44,15 +46,18 @@ class Particle
 
 class ParticleSystem
 {
+  boolean done = false;
   Particle[] particles;
-  int numParticles, sysRadius;
-  float rotationSpeed;
+  int numParticles, sysRadius, sysGrowth;
+  float rotationSpeed, hue;
   
-  ParticleSystem(int numParticles, int particleRadius, int sysRadius, float rotationSpeed)
+  ParticleSystem(int numParticles, int particleRadius, int sysRadius, int sysGrowth, float rotationSpeed, float hue)
   {
     this.numParticles = numParticles;
     this.sysRadius = sysRadius;
+    this.sysGrowth = sysGrowth;
     this.rotationSpeed = rotationSpeed;
+    this.hue = hue;
     particles = new Particle[this.numParticles];
     
     for (int i = 0; i < numParticles; i++)
@@ -71,39 +76,27 @@ class ParticleSystem
     float t = radians((index/(float)numParticles)*360.0f);
     float x = sysRadius*cos(t);
     float y = sysRadius*sin(t);
-    particles[index] = new Particle((width/2) + x, (height/2) + y, 0, t, 5);
-  }
-  
-  void renewParticle(int index)
-  {
-    killParticle(index);
-    createParticle(index);
+    particles[index] = new Particle((width/2) + x, (height/2) + y, 0, t, 5, hue);
   }
   
   void updateSystem()
   {
-    for (int i = 0; i < numParticles; i++)
+    for (int i = numParticles-1; i >= 0; i--)
     {
       int age = particles[i].getAge();
-      if ( age < sysRadius )
+      if (age < sysGrowth)
       {
         float t = (particles[i].getAngle() + rotationSpeed);
-        particles[i].move((width/2)+((sysRadius-age)*cos(t)), (height/2)+((sysRadius-age)*sin(t)), 0, t);
+        particles[i].move((width/2)+((sysGrowth-age)*cos(t)), (height/2)+((sysGrowth-age)*sin(t)), 0, t);
+      }
+      else if (age < sysGrowth*2)
+      {
+        float t = particles[i].getAngle();
+        particles[i].move((width/2)+((sysGrowth-age)*cos(t)), (height/2)+((sysGrowth-age)*sin(t)), particles[i].getAge() - sysGrowth, t);
       }
       else
       {
-        if (i < numParticles-1)
-        {
-          renewParticle(i);
-        }
-        else
-        { // create new particle system
-          killParticle(i);
-          numParticles = numParticles - 1;
-          rotationSpeed = rotationSpeed * 2.5;
-          print("numParticles = " + numParticles + "\n");
-          print("rotationSpeed = " + rotationSpeed + "\n");
-        }
+        done = true;
       }
     }
   }
@@ -116,20 +109,41 @@ class ParticleSystem
   }
 }
 
+ArrayList<ParticleSystem> systems = new ArrayList<ParticleSystem>();
+int index;
 ParticleSystem sys;
+
+int NUM_PARTICLES = 32;
+int RAD_PARTICLE = 5;
+int RAD_SYSTEM = 200;
+int SYS_GROWTH = 100;
+float SPEED = 0.01;
 
 void setup()
 {
+  sphereDetail(25);
   size(500,500, P3D);
-  //camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0/180.0), width/2.0, height/2.0, 0, 0, 1, 0);
-  sys = new ParticleSystem(32,5,100,.01);
+  index = SYS_GROWTH;
+  while (SYS_GROWTH > 60)
+  {
+    SPEED *= -2;
+    sys = new ParticleSystem(NUM_PARTICLES, RAD_PARTICLE, RAD_SYSTEM-=5, SYS_GROWTH-=2, SPEED, (SYS_GROWTH/(float)index)*255);
+    
+    systems.add(sys);
+  }
 }
 
 void draw()
 {
   background(0);
-  strokeWeight(5);
-  line(0,0,0,width,0,0);
-  sys.updateSystem();
-  sys.drawSystem();
+  //lights();
+  for (int i = 0; i < systems.size(); i++)
+  {
+    ParticleSystem sys = systems.get(i);
+    if (!sys.done)
+    {
+      sys.updateSystem();
+    }
+    sys.drawSystem();
+  }
 }
