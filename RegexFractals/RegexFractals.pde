@@ -32,6 +32,7 @@ class CartesianField
 }
 
 boolean draw, draw_t;
+int pic_x, pic_y;
 String temp, regex;
 CartesianField cf;
 
@@ -42,21 +43,24 @@ void setup()
   regex = "";
   temp = "";
   draw = false;
+  pic_x = 5;
+  pic_y = 5;
   noStroke();
   fill(0,0,0);
 }
 
 void draw()
 {
+
   background(255);
   if (!temp.equals(""))
   {
+    fill(0);
     text(temp,50,50);
   }
   else if (!regex.equals(""))
   {
-    //text(regex,50,50);
-    
+    regex = regex.trim();
     for (int y = 0; y < cf.y; y++)
     {
       for (int x = 0; x < cf.x; x++)
@@ -64,11 +68,25 @@ void draw()
         String[] match = match(cf.cells[x][y], regex);
         if (match != null)
         {
-          fill(match[1].length()*15,0,0);
+          int s = 0;
+          for (int i = 1; i < match.length; i++)
+          {
+            if (match[i] != null)
+              s += match[i].length();
+          }
+          fill(255*((float)s/10),0,0);
           rect(x,y,1,1);
         }
       }
     }
+    float tw = textWidth(regex);
+    float ta = textAscent();
+    float td = textDescent();
+    rectMode(CORNER);
+    fill(0,0,0,128);
+    rect(pic_x,pic_y,10+tw,10+ta+td);
+    fill(255,255,255,128);
+    text(regex,pic_x+5,pic_y+5,tw,ta+td);
   }
 }
 
@@ -82,10 +100,24 @@ void keyPressed()
   }
   else if (key == (char) 8)
   {
-    temp = temp.substring(0,temp.length()-1);
+    if (temp.length() > 0)
+      temp = temp.substring(0,temp.length()-1);
   }
   else if (key != CODED)
   {
     temp = temp + key;
   }
+  else if (key == CODED)
+  {
+    if (keyCode == UP)
+    {
+      save("regex-" + day() + "-" + month() + "-" + year() + "_" + millis() +".png");
+    }
+  }
+}
+
+void mousePressed()
+{
+    pic_x = mouseX-2;
+    pic_y = mouseY-2;
 }
