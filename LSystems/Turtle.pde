@@ -14,6 +14,7 @@ class Turtle
     location = new PVector(x,y);
     this.angle = angle;
     this.pen = pen;
+    strokeWeight(pen.penWidth);
     
     //print("Created turtle at " + x + ", " + y + "\n");
   }
