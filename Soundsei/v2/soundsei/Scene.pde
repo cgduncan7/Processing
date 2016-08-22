@@ -1,4 +1,4 @@
-class Scene {
+public abstract class Scene {
   private Processor processor;
   private PApplet parent;
   
@@ -7,33 +7,24 @@ class Scene {
     this.parent = parent;
   }
   
-  public void onLowFreqBeat(PApplet parent, float val) {
-    /* IMPLEMENT */
+  public abstract void onLowFreqBeat(PApplet parent, float val);
+  public abstract void onMidFreqBeat(PApplet parent, float val);
+  public abstract void onHighFreqBeat(PApplet parent, float val);
+  public abstract void onBeat(PApplet parent, float val);
+  public abstract void draw(PApplet parent, float energy, float lowFreq, float midFreq, float highFreq);
+  public abstract void init(PApplet parent);
+  
+  public void init() {
+    init(parent);
   }
   
-  public void onMidFreqBeat(PApplet parent, float val) {
-    /* IMPLEMENT */
-  }
-  
-  public void onHighFreqBeat(PApplet parent, float val) {
-    /* IMPLEMENT */
-  }
-  
-  public void onBeat(PApplet parent, float val) {
-    /* IMPLEMENT */
-  }
-  
-  public void draw(PApplet parent, float energy, float lowFreq, float midFreq, float highFreq) {
-    /* IMPLEMENT */
-  }
-  
-  private void step() {
+  public void step() {
     ProcessorData pData = processor.step();
     
-    if(pData.beat) onBeat(parent, pData.energy);
+    draw(parent, pData.energy, pData.lowFreq, pData.midFreq, pData.highFreq);
+    if (pData.beat) onBeat(parent, pData.energy);
     if (pData.lBeat) onLowFreqBeat(parent, pData.lowFreq);
     if (pData.mBeat) onMidFreqBeat(parent, pData.midFreq);
     if (pData.hBeat) onHighFreqBeat(parent, pData.highFreq);
-    draw(parent, pData.energy, pData.lowFreq, pData.midFreq, pData.highFreq);
   }
 }

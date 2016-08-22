@@ -1,12 +1,17 @@
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+
 class Processor {
+  Minim minim;
   AudioInput input;
   FFT fft;
   int bufferSize, windowSize;
   float sampleRate;
   SoundEnergyBuffer seb, lfeb, mfeb, hfeb;
   
-  public Processor(AudioInput input) {
-    this.input = input;
+  public Processor() {
+    minim = new Minim(this);
+    input = minim.getLineIn(Minim.STEREO);
     sampleRate = input.sampleRate();
     bufferSize = input.bufferSize();
     windowSize = floor(sampleRate / bufferSize);
