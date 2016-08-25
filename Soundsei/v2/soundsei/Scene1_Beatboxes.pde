@@ -1,5 +1,7 @@
 class Scene1_Beatboxes extends Scene {
   public BoxRow[] boxRows;
+  private int minColor, maxColor;
+  private float min, max, minLow, minMid, minHigh, maxLow, maxMid, maxHigh;
   
   public Scene1_Beatboxes(PApplet parent) {
     super(parent, new Processor());
@@ -33,20 +35,38 @@ class Scene1_Beatboxes extends Scene {
   
   public void draw(PApplet parent, float energy, float lowFreq, float midFreq, float highFreq) {
     parent.background(0);
+    if (energy > max) energy = max;
+    else if (energy < min) energy = min;
+    
+    if (lowFreq > maxLow) lowFreq = maxLow;
+    else if (lowFreq < minLow) lowFreq = minLow;
+    
+    if (midFreq > maxMid) midFreq = maxMid;
+    else if (midFreq < minMid) midFreq = minMid;
+    
+    if (highFreq > maxMid) highFreq = maxMid;
+    else if (highFreq < minHigh) highFreq = minHigh;
+    
+    // TODO: Add the border and fill colors by using map() with min<x>/max<x> to create an even fill
+    // Box b = new Box(dim, borderC, fillC);
+    // boxRow.push(b);
+    // boxRow.draw();
   }
 }
 
 class BoxRow {
   private Box[] boxes;
-  private int index;
+  private int index, xVal;
   
-  public BoxRow(int length) {
+  public BoxRow(int length, int xVal) {
     boxes = new Box[length];
+    this.xVal = xVal;
     index = 0;
   }
   
   public void push(Box box) {
     boxes[index] = box;
+    boxes[index].x = xVal;
     index = (index >= boxes.length - 1) ? 0 : index + 1;
   }
   
@@ -63,11 +83,9 @@ class Box {
   int x, y, w, h;
   color border, fill;
   
-  public Box(int x, int y, int w, int h, color border, color fill) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+  public Box(int dim, color border, color fill) {
+    this.w = dim;
+    this.h = dim;
     this.border = border;
     this.fill = fill;
   }
