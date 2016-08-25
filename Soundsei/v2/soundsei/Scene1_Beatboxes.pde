@@ -1,56 +1,68 @@
 class Scene1_Beatboxes extends Scene {
-  public BoxRow[] boxRows;
+  public BoxRow boxRowE, boxRowL, boxRowM, boxRowH;
+  private final int DIM = 10, BOXROWS = 40;
   private int minColor, maxColor;
   private float min, max, minLow, minMid, minHigh, maxLow, maxMid, maxHigh;
   
   public Scene1_Beatboxes(PApplet parent) {
-    super(parent, new Processor());
+    this(parent, new Processor());
   }
   
   public Scene1_Beatboxes(PApplet parent, Processor processor) {
     super(parent, processor);
-    boxRows = new BoxRow[5];
+    boxRowE = new BoxRow(BOXROWS, parent.width/5);
+    boxRowL = new BoxRow(BOXROWS, 2*parent.width/5);
+    boxRowM = new BoxRow(BOXROWS, 3*parent.width/5);
+    boxRowH = new BoxRow(BOXROWS, 4*parent.width/5);
+    minColor = 0;
+    maxColor = 255;
+    min = minLow = minMid = minHigh = 0;
+    max = maxLow = maxMid = maxHigh = 1;
   }
   
   public void init(PApplet parent) {
     parent.background(0);
-    frameRate(60);
+    parent.frameRate(60);
   }
   
-  public void onBeat(PApplet parent, float val) {
-    
-  }
+  public void onBeat(PApplet parent, float val) {}
   
-  public void onLowFreqBeat(PApplet parent, float val) {
-    
-  }
+  public void onLowFreqBeat(PApplet parent, float val) {}
   
-  public void onMidFreqBeat(PApplet parent, float val) {
-    
-  }
+  public void onMidFreqBeat(PApplet parent, float val) {}
   
-  public void onHighFreqBeat(PApplet parent, float val) {
-    
-  }
+  public void onHighFreqBeat(PApplet parent, float val) {}
   
   public void draw(PApplet parent, float energy, float lowFreq, float midFreq, float highFreq) {
-    parent.background(0);
-    if (energy > max) energy = max;
-    else if (energy < min) energy = min;
+    background(0);
+    if (energy > max) max = energy;
+    else if (energy < min) min = energy;
     
-    if (lowFreq > maxLow) lowFreq = maxLow;
-    else if (lowFreq < minLow) lowFreq = minLow;
+    if (lowFreq > maxLow) maxLow = lowFreq;
+    else if (lowFreq < minLow) minLow = lowFreq;
     
-    if (midFreq > maxMid) midFreq = maxMid;
-    else if (midFreq < minMid) midFreq = minMid;
+    if (midFreq > maxMid) maxMid = midFreq;
+    else if (midFreq < minMid) minMid = midFreq;
     
-    if (highFreq > maxMid) highFreq = maxMid;
-    else if (highFreq < minHigh) highFreq = minHigh;
+    if (highFreq > maxHigh) maxHigh = highFreq;
+    else if (highFreq < minHigh) minHigh = highFreq;
     
-    // TODO: Add the border and fill colors by using map() with min<x>/max<x> to create an even fill
-    // Box b = new Box(dim, borderC, fillC);
-    // boxRow.push(b);
-    // boxRow.draw();
+    Box eBox = new Box(DIM, color((int)map(energy, min, max, minColor, maxColor)));
+    boxRowE.push(eBox);
+    
+    Box lBox = new Box(DIM, color((int)map(lowFreq, minLow, maxLow, minColor, maxColor), 0, 0));
+    boxRowL.push(lBox);
+    
+    Box mBox = new Box(DIM, color(0, (int)map(midFreq, minMid, maxMid, minColor, maxColor), 0));
+    boxRowM.push(mBox);
+    
+    Box hBox = new Box(DIM, color(0, 0, (int)map(highFreq, minHigh, maxHigh, minColor, maxColor)));
+    boxRowH.push(hBox);
+    
+    boxRowE.draw(parent);
+    boxRowL.draw(parent);
+    boxRowM.draw(parent);
+    boxRowH.draw(parent);
   }
 }
 
@@ -66,31 +78,29 @@ class BoxRow {
   
   public void push(Box box) {
     boxes[index] = box;
-    boxes[index].x = xVal;
     index = (index >= boxes.length - 1) ? 0 : index + 1;
   }
   
   public void draw(PApplet parent) {
     for (int i = 0; i < boxes.length - 1; i++) {
-      Box b = boxes[i];
-      b.draw(parent);
-      b.y += parent.height / boxes.length;
+      Box b = boxes[(index + i) % (boxes.length - 1)];
+      if (b != null) b.draw(parent, xVal, (parent.height / boxes.length) * i);
     }
   }
 }
 
 class Box {
-  int x, y, w, h;
+  int w, h;
   color border, fill;
   
-  public Box(int dim, color border, color fill) {
+  public Box(int dim, color fill) {
     this.w = dim;
     this.h = dim;
-    this.border = border;
+    this.border = color(0,0,0);
     this.fill = fill;
   }
   
-  public void draw(PApplet parent) {
+  public void draw(PApplet parent, int x, int y) {
     parent.colorMode(RGB);
     parent.stroke(border);
     parent.fill(fill);
