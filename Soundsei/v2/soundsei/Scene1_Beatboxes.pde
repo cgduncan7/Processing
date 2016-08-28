@@ -1,7 +1,7 @@
 class Scene1_Beatboxes extends Scene {
   public BoxRow boxRowE, boxRowL, boxRowM, boxRowH;
-  private final int DIM = 10, BOXROWS = 40;
-  private int minColor, maxColor;
+  private final int BOXROWS = 40;
+  private int minColor, maxColor, DIM;
   private float min, max, minLow, minMid, minHigh, maxLow, maxMid, maxHigh;
   
   public Scene1_Beatboxes(PApplet parent) {
@@ -10,12 +10,13 @@ class Scene1_Beatboxes extends Scene {
   
   public Scene1_Beatboxes(PApplet parent, Processor processor) {
     super(parent, processor);
-    boxRowE = new BoxRow(BOXROWS, parent.width/5);
-    boxRowL = new BoxRow(BOXROWS, 2*parent.width/5);
-    boxRowM = new BoxRow(BOXROWS, 3*parent.width/5);
-    boxRowH = new BoxRow(BOXROWS, 4*parent.width/5);
+    boxRowE = new BoxRow(BOXROWS, 0*parent.width/4);
+    boxRowL = new BoxRow(BOXROWS, 1*parent.width/4);
+    boxRowM = new BoxRow(BOXROWS, 2*parent.width/4);
+    boxRowH = new BoxRow(BOXROWS, 3*parent.width/4);
     minColor = 0;
     maxColor = 255;
+    DIM = parent.width / 4;
     min = minLow = minMid = minHigh = 0;
     max = maxLow = maxMid = maxHigh = 1;
   }
@@ -102,7 +103,7 @@ class Box {
   
   public void draw(PApplet parent, int x, int y) {
     parent.colorMode(RGB);
-    parent.stroke(border);
+    parent.stroke(fill);
     parent.fill(fill);
     parent.rect(x, y, w, h);
   }
