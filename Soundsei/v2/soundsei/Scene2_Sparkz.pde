@@ -35,9 +35,9 @@ class Scene2_Sparkz extends Scene {
     eSpark.decreaseAll(.05);
     
     hiSpark.replace(hfenergy*500);
-    midSpark.replace(mfenergy*5);
+    midSpark.replace(mfenergy*50);
     loSpark.replace(lfenergy*5);
-    eSpark.replace(energy*5);
+    eSpark.replace(energy);
     
     hiSpark.draw(parent);
     midSpark.draw(parent);
