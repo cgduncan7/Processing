@@ -4,11 +4,11 @@ class Scene1_Beatboxes extends Scene {
   private int minColor, maxColor, DIM;
   private float min, max, minLow, minMid, minHigh, maxLow, maxMid, maxHigh;
   
-  public Scene1_Beatboxes(PApplet parent) {
+  public Scene1_Beatboxes(PGraphics parent) {
     this(parent, new Processor());
   }
   
-  public Scene1_Beatboxes(PApplet parent, Processor processor) {
+  public Scene1_Beatboxes(PGraphics parent, Processor processor) {
     super(parent, processor);
     boxRowE = new BoxRow(BOXROWS, 0*parent.width/4);
     boxRowL = new BoxRow(BOXROWS, 1*parent.width/4);
@@ -21,21 +21,20 @@ class Scene1_Beatboxes extends Scene {
     max = maxLow = maxMid = maxHigh = 1;
   }
   
-  public void init(PApplet parent) {
+  public void init(PGraphics parent) {
     parent.background(0);
-    parent.frameRate(60);
   }
   
-  public void onBeat(PApplet parent, float val) {}
+  public void onBeat(PGraphics parent, float val) {}
   
-  public void onLowFreqBeat(PApplet parent, float val) {}
+  public void onLowFreqBeat(PGraphics parent, float val) {}
   
-  public void onMidFreqBeat(PApplet parent, float val) {}
+  public void onMidFreqBeat(PGraphics parent, float val) {}
   
-  public void onHighFreqBeat(PApplet parent, float val) {}
+  public void onHighFreqBeat(PGraphics parent, float val) {}
   
-  public void draw(PApplet parent, float energy, float lowFreq, float midFreq, float highFreq) {
-    background(0);
+  public void draw(PGraphics parent, float energy, float lowFreq, float midFreq, float highFreq) {
+    parent.background(0);
     if (energy > max) max = energy;
     else if (energy < min) min = energy;
     
@@ -82,7 +81,7 @@ class BoxRow {
     index = (index >= boxes.length - 1) ? 0 : index + 1;
   }
   
-  public void draw(PApplet parent) {
+  public void draw(PGraphics parent) {
     for (int i = 0; i < boxes.length - 1; i++) {
       Box b = boxes[(index + i) % (boxes.length - 1)];
       if (b != null) b.draw(parent, xVal, (parent.height / boxes.length) * i);
@@ -101,7 +100,7 @@ class Box {
     this.fill = fill;
   }
   
-  public void draw(PApplet parent, int x, int y) {
+  public void draw(PGraphics parent, int x, int y) {
     parent.colorMode(RGB);
     parent.stroke(fill);
     parent.fill(fill);
