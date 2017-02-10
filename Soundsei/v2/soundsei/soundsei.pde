@@ -2,13 +2,13 @@ Scene scene;
 PGraphics pg;
 
 void setup() {
-  size(1000, 1000, P3D);
+  size(800, 800);
   frameRate(120);
-  pg = createGraphics(1000,1000);
+  pg = createGraphics(800,800);
   //pg.beginDraw();
   //pg.endDraw();
   //while (pg == null) ;
-  scene = new Scene2_Sparkz(pg);
+  scene = new Scene3_Walkers(pg);
   scene.init();
 }
 

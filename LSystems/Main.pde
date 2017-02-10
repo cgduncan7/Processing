@@ -12,11 +12,15 @@ Turtle turtle;
 
 int index;
 
+void settings()
+{
+  size(800, 600);
+}
+
 void setup()
 {
-  size(1200,800);
   turtle = new Turtle(width/2, height , 270, new Pen(10, color(0,0,0)));
-  lSys = new LSystem(vars, constants, start, rules, 7);
+  lSys = new LSystem(vars, constants, start, rules, 6);
   index = 0;
 }
 
